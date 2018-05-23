@@ -27,11 +27,6 @@ else
 	ARCH="$SNAP_ARCH-linux-gnu"
 fi
 
-# Re-exec outside of apparmor confinement
-if [ -d /sys/kernel/security/apparmor ] && [ "$(cat /proc/self/attr/current)" != "unconfined" ]; then
-	exec /usr/sbin/aa-exec -p unconfined -- "$0" "$@"
-fi
-
 start() {
 	# Make sure our setup path for the container rootfs
 	# is present as lxc is statically configured for
@@ -53,11 +48,6 @@ start() {
 	# lib directory as explicit search target here.
 	export LD_LIBRARY_PATH="$LD_LIBRARY_PATH:$SNAP/usr/lib/$ARCH"
 
-	if [ -d /sys/kernel/security/apparmor ] ; then
-		# Load the profile for our Android container
-		"$SNAP"/sbin/apparmor_parser -r "$SNAP"/apparmor/anbox-container.aa
-	fi
-
 	enable_debug="$(snapctl get debug.enable)"
 	if [ "$enable_debug" = true ]; then
 		export ANBOX_LOG_LEVEL=debug
@@ -75,7 +65,10 @@ start() {
 		EXTRA_ARGS="$EXTRA_ARGS --privileged"
 	fi
 
-	exec "$SNAP"/bin/anbox-wrapper.sh container-manager \
+	# We need to switch into the child profile snapd provides for us
+	AA_EXEC="$SNAP/usr/sbin/aa-exec -p snap.$SNAP_NAME.container-manager//lxc --"
+
+	exec $AA_EXEC "$SNAP"/bin/anbox-wrapper.sh container-manager \
 		--data-path="$DATA_PATH" \
 		--android-image="$ANDROID_IMG" \
 		--daemon \

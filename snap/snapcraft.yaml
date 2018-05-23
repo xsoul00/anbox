@@ -11,40 +11,89 @@ description: |
   Runtime for Android applications which runs a full Android system
   in a container using Linux namespaces (user, ipc, net, mount) to
   separate the Android system fully from the host.
-confinement: devmode
-grade: devel
 architectures: [amd64]
+confinement: strict
+grade: stable
 
 slots:
-  # Depending on in which environment we're running we either need
-  # to use the system or session DBus so we also need to have one
-  # slot for each.
-  dbus-session:
+  dbus-session-slot:
     interface: dbus
-    bus: system
+    bus: session
     name: org.anbox
-  dbus-system:
+
+plugs:
+  dbus-session-plug:
     interface: dbus
-    bus: system
+    bus: session
     name: org.anbox
 
 apps:
   anbox:
     command: desktop-launch $SNAP/bin/anbox-wrapper.sh
+    slots:
+      - dbus-session-slot
+    plugs:
+      - x11
+      - unity7
+      - network
+      - opengl
+      - wayland
+      - pulseaudio
+      - home
+      - process-control
+      - desktop
+
   container-manager:
     command: bin/container-manager.sh start
     stop-command: bin/container-manager.sh stop
     daemon: simple
+    plugs:
+      - anbox-support
+      - firewall-control
+      - kernel-module-control
+      - mount-observe
+      - network-control
+      - network-bind
+
   collect-bug-info:
     command: bin/collect-bug-info.sh
+
   shell:
     command: bin/anbox-shell.sh
+
   android-settings:
     command: desktop-launch $SNAP/bin/app-android-settings.sh
     desktop: desktop/android-settings.desktop
+    slots:
+      - dbus-session-slot
+    plugs:
+      - dbus-session-plug
+      - x11
+      - unity7
+      - network
+      - opengl
+      - wayland
+      - pulseaudio
+      - home
+      - process-control
+      - desktop
+
   appmgr:
     command: desktop-launch $SNAP/bin/app-appmgr.sh
     desktop: desktop/appmgr.desktop
+    slots:
+      - dbus-session-slot
+    plugs:
+      - dbus-session-plug
+      - x11
+      - unity7
+      - network
+      - opengl
+      - wayland
+      - pulseaudio
+      - home
+      - process-control
+      - desktop
 
 parts:
   android:
@@ -98,11 +147,15 @@ parts:
     plugin: nil
     stage-packages:
       - apparmor
+    prime:
+      - usr/sbin/aa-exec
+      - sbin/apparmor_parser
 
   lxc:
-    source: https://github.com/lxc/lxc
+    source: https://github.com/morphis/lxc
     source-type: git
-    source-tag: lxc-3.0.0
+    source-branch: anbox-confinement
+    # source-tag: lxc-3.0.1
     build-packages:
       - libapparmor-dev
       - libcap-dev
@@ -179,10 +232,10 @@ parts:
     plugin: dump
     source: data
     prime:
-      - glvnd
-      - desktop
       - apparmor
+      - desktop
       - seccomp
+      - glvnd
 
   anbox:
     plugin: cmake

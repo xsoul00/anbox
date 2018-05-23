@@ -266,6 +266,11 @@ void LxcContainer::start(const Configuration &configuration) {
 
   set_config_item("lxc.init.cmd", "/anbox-init.sh");
 
+  // If we're running inside the snap environment snap-confine already created a
+  // cgroup for us we need to use as otherwise presevering a namespace wont help.
+  if (utils::is_env_set("SNAP"))
+    set_config_item("lxc.namespace.keep", "cgroup");
+
   auto rootfs_path = SystemConfiguration::instance().rootfs_dir();
   if (rootfs_overlay_)
     rootfs_path = SystemConfiguration::instance().combined_rootfs_dir();
@@ -283,14 +288,16 @@ void LxcContainer::start(const Configuration &configuration) {
 
   setup_network();
 
-#if 0
-  set_config_item("lxc.apparmor.profile", "anbox-container");
+  // We take the AppArmor profile snapd has defined for us as part of the
+  // anbox-support interface. The container manager itself runs within a
+  // child profile snap.anbox.container-manager//lxc too.
+  set_config_item("lxc.apparmor.profile", "snap.anbox.container-manager//container");
 
-  const auto seccomp_profile_path = fs::path(utils::get_env_value("SNAP", "/etc/anbox")) / "seccomp" / "anbox.sc";
-  set_config_item("lxc.seccomp.profile", seccomp_profile_path.string().c_str());
-#else
-  set_config_item("lxc.apparmor.profile", "unconfined");
-#endif
+  // FIXME we inherit this from snapd's anbox-support interface which is
+  // current unrestricted.
+  //
+  // const auto seccomp_profile_path = fs::path(utils::get_env_value("SNAP", "/etc/anbox")) / "seccomp" / "anbox.sc";
+  // set_config_item("lxc.seccomp.profile", seccomp_profile_path.string().c_str());
 
   if (!privileged_)
     setup_id_map();
