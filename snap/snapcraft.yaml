@@ -11,9 +11,9 @@ description: |
   Runtime for Android applications which runs a full Android system
   in a container using Linux namespaces (user, ipc, net, mount) to
   separate the Android system fully from the host.
-confinement: devmode
-grade: devel
 architectures: [amd64]
+confinement: strict
+grade: stable
 
 slots:
   dbus-session-slot:
@@ -48,6 +48,7 @@ apps:
     stop-command: bin/container-manager.sh stop
     daemon: simple
     plugs:
+      - anbox-support
       - firewall-control
       - mount-observe
       - network-control
@@ -55,8 +56,10 @@ apps:
 
   collect-bug-info:
     command: bin/collect-bug-info.sh
+
   shell:
     command: bin/anbox-shell.sh
+
   android-settings:
     command: desktop-launch $SNAP/bin/app-android-settings.sh
     desktop: desktop/android-settings.desktop
@@ -143,6 +146,8 @@ parts:
     plugin: nil
     stage-packages:
       - apparmor
+    prime:
+      - usr/sbin/aa-exec
 
   zip:
     plugin: nil
