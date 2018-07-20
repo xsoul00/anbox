@@ -116,11 +116,6 @@ set(ANBOX_STATEDIR_FULL "${CMAKE_INSTALL_FULL_LOCALSTATEDIR}/lib/anbox")
 configure_file(${CMAKE_CURRENT_SOURCE_DIR}/src/anbox/build/config.h.in
                ${CMAKE_CURRENT_SOURCE_DIR}/src/anbox/build/config.h)
 
-add_subdirectory(external)
-add_subdirectory(src)
-add_subdirectory(tests)
-add_subdirectory(android)
-
 if (NOT "${HOST_CMAKE_C_COMPILER}" STREQUAL "")
   message(STATUS "Host C compiler: ${HOST_CMAKE_C_COMPILER}")
   message(STATUS "Host C compiler: ${HOST_CMAKE_CXX_COMPILER}")
@@ -145,3 +140,8 @@ option(ENABLE_TOUCH_INPUT "Enable touch input support" OFF)
 if (ENABLE_TOUCH_INPUT)
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DENABLE_TOUCH_INPUT")
 endif()
+
+add_subdirectory(external)
+add_subdirectory(src)
+add_subdirectory(tests)
+add_subdirectory(android)
