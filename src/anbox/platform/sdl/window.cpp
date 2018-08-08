@@ -22,13 +22,15 @@
 
 #include <boost/throw_exception.hpp>
 
+#include <wayland-egl.h>
+
 namespace {
 constexpr const int window_resize_border{30};
 constexpr const int top_drag_area{50};
 constexpr const int button_size{32};
 constexpr const int button_margin{5};
 constexpr const int button_padding{4};
-}
+} // namespace
 
 namespace anbox {
 namespace platform {
@@ -78,14 +80,19 @@ Window::Window(const std::shared_ptr<Renderer> &renderer,
     case SDL_SYSWM_X11:
       native_display_ = static_cast<EGLNativeDisplayType>(info.info.x11.display);
       native_window_ = static_cast<EGLNativeWindowType>(info.info.x11.window);
+      platform_type_ = PlatformType::X11;
       break;
-    case SDL_SYSWM_WAYLAND:
+    case SDL_SYSWM_WAYLAND: {
       native_display_ = static_cast<EGLNativeDisplayType>(info.info.wl.display);
-      native_window_ = reinterpret_cast<EGLNativeWindowType>(info.info.wl.surface);
+      auto egl_window = wl_egl_window_create(info.info.wl.surface, frame.width(), frame.height());
+      native_window_ = reinterpret_cast<EGLNativeWindowType>(egl_window);
+      platform_type_ = PlatformType::Wayland;
       break;
+    }
     default:
       ERROR("Unknown subsystem (%d)", info.subsystem);
       BOOST_THROW_EXCEPTION(std::runtime_error("SDL subsystem not supported"));
+      break;
   }
 
   SDL_ShowWindow(window_);
@@ -147,19 +154,36 @@ void Window::switch_window_state() {
     SDL_MaximizeWindow(window_);
 }
 
+void Window::on_window_resize(int width, int height) {
+  // First we need to perform any platform specific changes to the native window handle
+  switch (platform_type_) {
+  case PlatformType::Wayland:
+    wl_egl_window_resize(reinterpret_cast<wl_egl_window*>(native_window_), width, height, 0, 0);
+    break;
+  default:
+    break;
+  }
+
+  if (observer_)
+    observer_->window_resized(id_, width, height);
+}
+
 void Window::process_event(const SDL_Event &event) {
   switch (event.window.event) {
     case SDL_WINDOWEVENT_FOCUS_GAINED:
-      if (observer_) observer_->window_wants_focus(id_);
+      if (observer_)
+        observer_->window_wants_focus(id_);
       break;
     case SDL_WINDOWEVENT_FOCUS_LOST:
       break;
     // Not need to listen for SDL_WINDOWEVENT_RESIZED here as the
     // SDL_WINDOWEVENT_SIZE_CHANGED is always sent.
-    case SDL_WINDOWEVENT_SIZE_CHANGED:
-      if (observer_)
-        observer_->window_resized(id_, event.window.data1, event.window.data2);
+    case SDL_WINDOWEVENT_SIZE_CHANGED: {
+      const auto width = event.window.data1;
+      const auto height = event.window.data2;
+      on_window_resize(width, height);
       break;
+    }
     case SDL_WINDOWEVENT_MOVED:
       if (observer_)
         observer_->window_moved(id_, event.window.data1, event.window.data2);

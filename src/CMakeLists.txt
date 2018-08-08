@@ -9,6 +9,7 @@ include_directories(
   ${PROPERTIES_CPP_INCLUDE_DIRS}
   ${LXC_INCLUDE_DIRS}
   ${LIBSYSTEMD_INCLUDE_DIRS}
+  ${WAYLAND_EGL_INCLUDE_DIRS}
   ${CMAKE_CURRENT_BINARY_DIR}
   ${CMAKE_SOURCE_DIR}
   ${CMAKE_SOURCE_DIR}/src
@@ -356,6 +357,8 @@ target_link_libraries(anbox-core
   ${LXC_LIBRARIES}
   ${LIBSYSTEMD_LDFLAGS}
   ${LIBSYSTEMD_LIBRARIES}
+  ${WAYLAND_EGL_LDFLAGS}
+  ${WAYLAND_EGL_LIBRARIES}
   cpu_features
   pthread
   process-cpp

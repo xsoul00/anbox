@@ -69,6 +69,7 @@ pkg_check_modules(DBUS dbus-1 REQUIRED)
 pkg_check_modules(LXC lxc REQUIRED)
 pkg_check_modules(PROPERTIES_CPP properties-cpp REQUIRED)
 pkg_check_modules(LIBSYSTEMD libsystemd REQUIRED)
+pkg_check_modules(WAYLAND_EGL wayland-egl REQUIRED)
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DMESA_EGL_NO_X11_HEADERS")
 

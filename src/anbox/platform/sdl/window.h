@@ -65,14 +65,24 @@ class Window : public std::enable_shared_from_this<Window>, public wm::Window {
  private:
   static SDL_HitTestResult on_window_hit(SDL_Window *window, const SDL_Point *pt, void *data);
 
+  void on_window_resize(int width, int height);
+
   void close();
   void switch_window_state();
 
   Id id_;
   std::shared_ptr<Observer> observer_;
+  SDL_Window *window_;
+
+  enum class PlatformType {
+    Unknown,
+    Wayland,
+    X11,
+  };
+  PlatformType platform_type_ = PlatformType::Unknown;
+
   EGLNativeDisplayType native_display_;
   EGLNativeWindowType native_window_;
-  SDL_Window *window_;
 };
 } // namespace sdl
 } // namespace platform
