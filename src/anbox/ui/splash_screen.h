@@ -20,7 +20,10 @@
 
 #include <thread>
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wswitch-default"
 #include <SDL2/SDL.h>
+#pragma GCC diagnostic pop
 
 namespace anbox {
 namespace ui {
