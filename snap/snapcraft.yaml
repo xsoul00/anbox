@@ -269,11 +269,85 @@ parts:
       - apparmor
       - seccomp
 
+  sdl:
+    plugin: autotools
+    source: https://github.com/anbox/SDL-mirror.git
+    source-type: git
+    source-branch: anbox-support
+    source-depth: 1
+    build-packages:
+      - libasound2-dev
+      - libdbus-1-dev
+      - libegl1-mesa-dev
+      - libgl1-mesa-dev
+      - libgles2-mesa-dev
+      - libglu1-mesa-dev
+      - libibus-1.0-dev
+      - libpulse-dev
+      - libsndio-dev
+      - libudev-dev
+      - libwayland-dev
+      - libx11-dev
+      - libxcursor-dev
+      - libxext-dev
+      - libxi-dev
+      - libxinerama-dev
+      - libxkbcommon-dev
+      - libxrandr-dev
+      - libxss-dev
+      - libxt-dev
+      - libxv-dev
+      - libxxf86vm-dev
+      - pkg-config
+      - libsamplerate0-dev
+      - wayland-protocols
+    configflags:
+      - --prefix=/usr
+      - --disable-rpath
+      - --disable-fcitx
+      - --enable-sdl-dlopen
+      - --disable-loadso
+      - --disable-nas
+      - --disable-esd
+      - --disable-arts
+      - --disable-alsa-shared
+      - --disable-pulseaudio-shared
+      - --enable-ibus
+      - --disable-x11-shared
+      - --disable-video-directfb
+      - --disable-video-vulkan
+      - --disable-video-mir
+      - --enable-video-opengles
+      - --enable-video-wayland
+      - --disable-wayland-shared
+
+  sdl-image:
+    plugin: autotools
+    source: https://github.com/anbox/SDL_image.git
+    source-type: git
+    source-branch: master
+    source-depth: 1
+    after: [sdl]
+    build-packages:
+      - libjpeg-dev
+      - libpng-dev
+      - zlib1g-dev
+    configflags:
+      - --prefix=/usr
+    build: |
+      # The staged configure script is too old and depends on an old
+      # automake version so we need to regenerate it.
+      rm configure
+      ./autogen.sh
+      snapcraftctl build
+
   anbox:
     plugin: cmake
     after:
       - lxc
       - desktop-glib-only
+      - sdl
+      - sdl-image
     source: .
     configflags:
       # FIXME: Anbox currently has some paths with hard coded prefixes. Once
@@ -307,8 +381,6 @@ parts:
       - libgtest-dev
       - libprotobuf-dev
       - libproperties-cpp-dev
-      - libsdl2-dev
-      - libsdl2-image-dev
       - libsystemd-dev
       - pkg-config
       - protobuf-compiler
@@ -321,9 +393,6 @@ parts:
       - libegl1-mesa
       - libgles2-mesa
       - libgl1-mesa-glx
-      - libsdl2-2.0-0
-      - libsdl2-gfx-1.0-0
-      - libsdl2-image-2.0-0
       - libsystemd0
     prime:
       - usr/bin/anbox
