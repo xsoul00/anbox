@@ -40,4 +40,10 @@ if [ "$(snapctl get software-rendering.enable)" = true ]; then
 	export ANBOX_FORCE_SOFTWARE_RENDERING=true
 fi
 
+# In case that we're running in kiosk mode we need to modify a few
+# things of our runtime configuration.
+if [ "$(snapctl get mode)" = kiosk ]; then
+	export XDG_RUNTIME_DIR="$SNAP_DATA"/wayland
+fi
+
 exec "$SNAP"/usr/bin/anbox "$@"

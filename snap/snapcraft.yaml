@@ -27,6 +27,12 @@ plugs:
     bus: session
     name: org.anbox
 
+  wayland-socket-dir:
+    content: wayland-socket-dir
+    interface: content
+    target: $SNAP_DATA/wayland
+    default-provider: mir-kiosk
+
 apps:
   anbox:
     command: desktop-launch $SNAP/bin/anbox-wrapper.sh
