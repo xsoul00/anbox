@@ -22,10 +22,6 @@
 
 #include <boost/throw_exception.hpp>
 
-#if defined(MIR_SUPPORT)
-#include <mir_toolkit/mir_client_library.h>
-#endif
-
 namespace {
 constexpr const int window_resize_border{30};
 constexpr const int top_drag_area{50};
@@ -87,14 +83,6 @@ Window::Window(const std::shared_ptr<Renderer> &renderer,
       native_display_ = static_cast<EGLNativeDisplayType>(info.info.wl.display);
       native_window_ = reinterpret_cast<EGLNativeWindowType>(info.info.wl.surface);
       break;
-#if defined(MIR_SUPPORT)
-    case SDL_SYSWM_MIR: {
-      native_display_ = static_cast<EGLNativeDisplayType>(mir_connection_get_egl_native_display(info.info.mir.connection));
-      auto buffer_stream = mir_surface_get_buffer_stream(info.info.mir.surface);
-      native_window_ = reinterpret_cast<EGLNativeWindowType>(mir_buffer_stream_get_egl_native_window(buffer_stream));
-      break;
-    }
-#endif
     default:
       ERROR("Unknown subsystem (%d)", info.subsystem);
       BOOST_THROW_EXCEPTION(std::runtime_error("SDL subsystem not supported"));
