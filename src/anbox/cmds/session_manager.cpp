@@ -181,7 +181,9 @@ anbox::cmds::SessionManager::SessionManager()
       gl_driver,
       single_window_
     };
-    auto gl_server = std::make_shared<graphics::GLRendererServer>(renderer_config, window_manager);
+    auto gl_server = std::make_shared<graphics::GLRendererServer>(renderer_config,
+                                                                  window_manager,
+                                                                  platform->native_display());
 
     platform->set_window_manager(window_manager);
     platform->set_renderer(gl_server->renderer());

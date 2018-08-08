@@ -54,6 +54,7 @@ class Window {
   void update_state(const WindowState::List &states);
   void update_frame(const graphics::Rect &frame);
 
+  virtual EGLNativeDisplayType native_display() const;
   virtual EGLNativeWindowType native_handle() const;
   graphics::Rect frame() const;
   Task::Id task() const;

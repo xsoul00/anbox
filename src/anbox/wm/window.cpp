@@ -44,6 +44,10 @@ graphics::Rect Window::frame() const { return frame_; }
 
 EGLNativeWindowType Window::native_handle() const { return 0; }
 
+EGLNativeDisplayType Window::native_display() const {
+  return static_cast<EGLNativeDisplayType>(EGL_NO_DISPLAY);
+}
+
 std::string Window::title() const { return title_; }
 
 bool Window::attach() {

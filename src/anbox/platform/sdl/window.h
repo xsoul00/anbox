@@ -57,6 +57,7 @@ class Window : public std::enable_shared_from_this<Window>, public wm::Window {
 
   void process_event(const SDL_Event &event);
 
+  EGLNativeDisplayType native_display() const override;
   EGLNativeWindowType native_handle() const override;
   Id id() const;
   std::uint32_t window_id() const;

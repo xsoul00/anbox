@@ -179,6 +179,8 @@ void Window::process_event(const SDL_Event &event) {
   }
 }
 
+EGLNativeDisplayType Window::native_display() const { return native_display_; }
+
 EGLNativeWindowType Window::native_handle() const { return native_window_; }
 
 Window::Id Window::id() const { return id_; }

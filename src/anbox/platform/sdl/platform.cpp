@@ -444,6 +444,13 @@ std::shared_ptr<audio::Source> Platform::create_audio_source() {
 bool Platform::supports_multi_window() const {
   return true;
 }
+
+EGLNativeDisplayType Platform::native_display() const {
+  if (!current_window_)
+    return static_cast<EGLNativeDisplayType>(EGL_NO_DISPLAY);
+
+  return current_window_->native_display();
+}
 } // namespace sdl
 } // namespace platform
 } // namespace anbox

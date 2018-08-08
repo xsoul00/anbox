@@ -23,6 +23,8 @@
 
 #include <memory>
 
+#include <EGL/egl.h>
+
 class Renderer;
 
 namespace anbox {
@@ -58,6 +60,8 @@ class BasePlatform {
   virtual void set_window_manager(const std::shared_ptr<wm::Manager> &window_manager) = 0;
 
   virtual bool supports_multi_window() const = 0;
+
+  virtual EGLNativeDisplayType native_display() const { return static_cast<EGLNativeDisplayType>(EGL_NO_DISPLAY); }
 };
 std::shared_ptr<BasePlatform> create(const std::string &name = "",
                                      const std::shared_ptr<input::Manager> &input_manager = nullptr,

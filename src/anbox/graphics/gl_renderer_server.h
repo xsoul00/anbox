@@ -21,6 +21,8 @@
 #include <memory>
 #include <string>
 
+#include <EGL/eglplatform.h>
+
 class Renderer;
 
 namespace anbox {
@@ -47,7 +49,9 @@ class GLRendererServer {
     bool single_window;
   };
 
-  GLRendererServer(const Config &config, const std::shared_ptr<wm::Manager> &wm);
+  GLRendererServer(const Config &config,
+                   const std::shared_ptr<wm::Manager> &wm,
+                   EGLNativeDisplayType native_display);
   ~GLRendererServer();
 
   std::shared_ptr<Renderer> renderer() const { return renderer_; }
