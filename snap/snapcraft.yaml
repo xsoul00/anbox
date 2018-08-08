@@ -21,10 +21,20 @@ slots:
     bus: session
     name: org.anbox
 
+  dbus-system-slot:
+    interface: dbus
+    bus: system
+    name: org.anbox
+
 plugs:
   dbus-session-plug:
     interface: dbus
     bus: session
+    name: org.anbox
+
+  dbus-system-plug:
+    interface: dbus
+    bus: system
     name: org.anbox
 
   wayland-socket-dir:
@@ -59,10 +69,15 @@ apps:
       - network-control
       - network-bind
 
+  kiosk-session:
+    command: desktop-launch $SNAP/bin/kiosk-session.sh
+
   collect-bug-info:
     command: bin/collect-bug-info.sh
+
   shell:
     command: bin/anbox-shell.sh
+
   android-settings:
     command: desktop-launch $SNAP/bin/app-android-settings.sh
     desktop: desktop/android-settings.desktop
@@ -81,7 +96,7 @@ apps:
       - desktop
 
   appmgr:
-    command: desktop-launch $SNAP/bin/app-appmgr.sh
+    command: desktop-launch $SNAP/bin/app-appmgr.shv
     desktop: desktop/appmgr.desktop
     slots:
       - dbus-session-slot
@@ -235,6 +250,7 @@ parts:
       app-android-settings.sh: bin/app-android-settings.sh
       app-appmgr.sh: bin/app-appmgr.sh
       anbox-shell.sh: bin/anbox-shell.sh
+      kiosk-session.sh: bin/kiosk-session.sh
     prime:
       - bin/anbox-bridge.sh
       - bin/anbox-shell.sh
@@ -242,6 +258,7 @@ parts:
       - bin/container-manager.sh
       - bin/collect-bug-info.sh
       - bin/app-*.sh
+      - bin/kiosk-session.sh
 
   anbox-data:
     plugin: dump
@@ -312,3 +329,10 @@ parts:
       - usr/bin/anbox
       - usr/share/anbox
       - usr/lib/*-linux-*/
+
+  xkbcommon:
+    plugin: nil
+    stage-packages:
+      - xkb-data
+    prime:
+      - usr/share/X11/xkb

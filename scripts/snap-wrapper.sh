@@ -44,6 +44,8 @@ fi
 # things of our runtime configuration.
 if [ "$(snapctl get mode)" = kiosk ]; then
 	export XDG_RUNTIME_DIR="$SNAP_DATA"/wayland
+	export SDL_VIDEODRIVER=wayland
+	export XKB_CONFIG_ROOT="$SNAP"/usr/share/X11/xkb
 fi
 
 exec "$SNAP"/usr/bin/anbox "$@"
