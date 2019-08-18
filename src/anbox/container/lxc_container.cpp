@@ -102,6 +102,14 @@ LxcContainer::LxcContainer(bool privileged,
       container_network_gateway_(container_network_gateway),
       container_network_dns_servers_(container_network_dns_servers),
       creds_(creds) {
+
+  // Ensure that the global data directory is present first and correct its permissions
+  // to prevent unauthorized access to any user data
+  utils::ensure_paths({SystemConfiguration::instance().data_dir().string()});
+  if (chmod(SystemConfiguration::instance().data_dir().c_str(), 0700) < 0)
+    throw std::runtime_error("Failed to correct permissions of the data directory");
+
+  // Now we can create all subdirectories
   utils::ensure_paths({
       SystemConfiguration::instance().container_config_dir(),
       SystemConfiguration::instance().container_state_dir(),
