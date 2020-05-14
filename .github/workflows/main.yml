@@ -1,0 +1,12 @@
+on:
+  push:
+    branches: [master]
+  pull-request: null
+
+jobs:
+  main:
+    runs-on: ubuntu-latest
+    name: Build Anbox
+    steps:
+    - name: Build via Docker
+      run: scripts/build-with-docker.sh
